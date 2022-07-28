@@ -3,9 +3,42 @@ import { Button, StyleSheet, Text, View } from 'react-native';
 
 import * as Notifications from 'expo-notifications';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => {
+    return {
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+      shouldShowAlert: true,
+    };
+  }
+});
+
+const allowsNotificationsAsync = async () => {
+  const settings = await Notifications.getPermissionsAsync();
+  return (
+    settings.granted ||
+    settings.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL
+  );
+};
+
+const requestPermissionsAsync = async () => {
+  return await Notifications.requestPermissionsAsync({
+    ios: {
+      allowAlert: true,
+      allowBadge: true,
+      allowSound: true,
+      allowAnnouncements: true,
+    },
+  });
+};
+
 export default function App() {
 
-  const scheduleNotificationHandler = () => {
+  const scheduleNotificationHandler = async () => {
+    const hasPushNotificationPermissionGranted = await allowsNotificationsAsync();
+    if (!hasPushNotificationPermissionGranted) {
+      await requestPermissionsAsync();
+    }
     Notifications.scheduleNotificationAsync({
       content: {
         title: 'My first local notification',
@@ -13,7 +46,6 @@ export default function App() {
         data: { userName: 'Max'},
       },
       trigger: {
-        // when notif should be delivered
         seconds: 5,
       },
     });
