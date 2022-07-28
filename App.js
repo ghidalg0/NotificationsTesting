@@ -38,14 +38,21 @@ export default function App() {
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(
       (notification) => {
-        console.log('Notification Received');
         console.log(notification);
         const user = notification.request.content.data.userName;
         console.log(user);
       }
     );
+
+    const sub = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+      }
+    );
+
     return () => {
       subscription.remove();
+      sub.remove();
     }; // clean up function !
 
   }, []);
