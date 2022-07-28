@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 
 import * as Notifications from 'expo-notifications';
+import { useEffect } from 'react';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -33,6 +34,21 @@ const requestPermissionsAsync = async () => {
 };
 
 export default function App() {
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log('Notification Received');
+        console.log(notification);
+        const user = notification.request.content.data.userName;
+        console.log(user);
+      }
+    );
+    return () => {
+      subscription.remove();
+    }; // clean up function !
+
+  }, []);
 
   const scheduleNotificationHandler = async () => {
     const hasPushNotificationPermissionGranted = await allowsNotificationsAsync();
